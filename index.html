@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Sudoku Analizer</title>
+  <script type="text/javascript" src="sudoku.js"></script>
+  <STYLE TYPE="text/css">
+    <!--
+
+:root {
+  --grid-size: 46;
+  --grid-width: 24;
+  --box-size: 142;
+}
+
+.button {
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  height: var(--grid-size);
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+
+.boxcontainer{
+  margin: 0;
+  padding: 0;
+}
+
+.box{
+  display: table-cell;
+  margin: 0;
+  padding: 0;
+}
+
+.cb_rline{
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  height: var(--grid-size);
+  width: var(--grid-width);
+  margin: 0;
+  padding: 0;
+}
+
+.cb_cline{
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  height: var(--grid-width);
+  width: var(--grid-size);
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+
+.cb_rbox{
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  margin: 0;
+  padding: 0;
+  height:var(--box-size);
+  width: var(--grid-width);
+  vertical-align: center;
+}
+.cb_cbox{
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  margin: 0;
+  padding: 0;
+  height: var(--grid-width);
+  width:var(--box-size);
+  display: inline-block;
+  vertical-align: center;
+}
+
+
+td{
+  margin: 0;
+  padding: 0;
+}
+
+.rbutton {
+  border-width: thin;border-style: solid;
+  background-color:  palegreen;
+  height: var(--grid-size);
+  width: var(--grid-size);
+  margin: 0;
+  padding: 0;
+}
+-->
+</style>
+
+
+</head>
+
+<body onload=onLoad()>
+  <h1>数独解析スクリプト</h1>
+
+  ショートカットキー
+  <ul>
+    <li> S: 入れ替え
+    <li> T: 転置
+    <li> N: 数字の入れ替え
+    <li> C: 色のクリア
+    <li> R: 数字のリナンバリング
+  </ul>
+  <input type="text" size=100 id="rawdata">
+  <input type="button" onClick=inputdata() value="入力">
+
+  <form id=form>
+
+
+    <table>
+      <tr>
+        <td>
+          <label>
+            <p class=cb_rbox><input class=cb id="cb_rbox1" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rbox><input class=cb id="cb_rbox2" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rbox><input class=cb id="cb_rbox3" type="checkbox"></p>
+          </label>
+        </td>
+        <td>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline1" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline2" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline3" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline4" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline5" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline6" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline7" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline8" type="checkbox"></p>
+          </label>
+          <label>
+            <p class=cb_rline><input class=cb id="cb_rline9" type="checkbox"></p>
+          </label>
+        </td>
+        <td>
+          <canvas id="mycanvas" onClick=onClickCanvas(event.pageX,event.pageY)>
+          </canvas>
+        </td>
+        <td>
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td>
+        </td>
+        <td>
+          <label>
+            <div class=cb_cline><input class=cb id="cb_cline1" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline2" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline3" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline4" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline5" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline6" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline7" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline8" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cline><input class=cb id="cb_cline9" type="checkbox"></div>
+          </label>
+          <!--
+-->
+        </td>
+      </tr>
+      <tr>
+        <td>
+        </td>
+        <td></td>
+        <td>
+          <label>
+            <div class=cb_cbox><input id="cb_cbox1" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cbox><input id="cb_cbox2" type="checkbox"></div>
+          </label>
+          <!--
+--><label>
+            <div class=cb_cbox><input id="cb_cbox3" type="checkbox"></div>
+          </label>
+          <!--
+-->
+        </td>
+      </tr>
+    </table>
+
+    <div>数字の入れ替え</div>
+    <table>
+      <tr>
+        <td> <label> <input name="num1" type="radio" value="1" checked>1</label></td>
+        <td> <label> <input name="num1" type="radio" value="2">2</label></td>
+        <td> <label> <input name="num1" type="radio" value="3">3</label></td>
+        <td> <label> <input name="num1" type="radio" value="4">4</label></td>
+        <td> <label> <input name="num1" type="radio" value="5">5</label></td>
+        <td> <label> <input name="num1" type="radio" value="6">6</label></td>
+        <td> <label> <input name="num1" type="radio" value="7">7</label></td>
+        <td> <label> <input name="num1" type="radio" value="8">8</label></td>
+        <td> <label> <input name="num1" type="radio" value="9">9</label></td>
+      </tr>
+      <tr>
+        <td> <label> <input name="num2" type="radio" value="1">1</label></td>
+        <td> <label> <input name="num2" type="radio" value="2" checked>2</label></td>
+        <td> <label> <input name="num2" type="radio" value="3">3</label></td>
+        <td> <label> <input name="num2" type="radio" value="4">4</label></td>
+        <td> <label> <input name="num2" type="radio" value="5">5</label></td>
+        <td> <label> <input name="num2" type="radio" value="6">6</label></td>
+        <td> <label> <input name="num2" type="radio" value="7">7</label></td>
+        <td> <label> <input name="num2" type="radio" value="8">8</label></td>
+        <td> <label> <input name="num2" type="radio" value="9">9</label></td>
+      </tr>
+    </table>
+    <div>色の指定</div>
+
+    <div>
+      <label> <input name="color" type="radio" value="0" checked>白</label>
+      <label> <input name="color" type="radio" value="1">青</label>
+      <label> <input name="color" type="radio" value="2">緑</label>
+      <label> <input name="color" type="radio" value="3">黄</label>
+    </div>
+
+    <div>
+      <input type="text" size=100 id="uasets">
+      <input type="button" onClick=inputua() value="入力">
+    </div>
+
+    <div>
+      <input type="text" size=100 id="bitset">
+      <input type="button" onClick=inputbits() value="入力">
+    </div>
+  </form>
+  <div id=error_message></div>
+
+</body>
+
+</html>
