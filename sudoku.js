@@ -1,5 +1,5 @@
 //let data = "000010020000300400005006007089000000056000300700005008000040010007200000060008009";
-let data = "000000005020004070007090800000001000006050003040203000009000508070000010800030607";
+let data = "003050009400000000080007100000600800300090002000001070504030020060000000032000005";
 
 let color_data = Array.apply(null, Array(81)).map(function () { return 0; });
 
@@ -29,6 +29,15 @@ function onLoad() {
 function show_error(msg) {
   document.getElementById('error_message').innerHTML = msg;
 }
+
+function show_numbers(msg) {
+  let str = "123456789<BR>";
+  for (let i = 1; i < 10; i++) {
+    str += data.split(String(i)).length - 1;
+  }
+  document.getElementById('numbers').innerHTML = str;
+}
+
 
 function draw_circle(pos, num, ctx) {
   let ix = pos % 9;
@@ -79,6 +88,18 @@ function cell_alt(pm, list) {
   }
 }
 
+function i2b(v) {
+  let s = "";
+  for (let i = 0; i < 9; i++) {
+    if (v & (1 << i)) {
+      s += "1";
+    } else {
+      s += "0";
+    }
+  }
+  return s;
+}
+
 //ユニット内二択
 function add_alt(b, pos, list) {
   let b0_3a = (b[0] ^ b[1]) & ~(b[2] | b[3]);
@@ -108,14 +129,19 @@ function add_alt(b, pos, list) {
     | (b0_3_0 & b4_7_1 & b[8])   // 0,1,1
     | (b0_3_0 & b4_7_2 & ~b[8]); // 0,2,0
   if (b2 == 0) return;
-  let n = bit_count(b2 - 1);
-  let a = [];
-  for (let i = 0; i < 9; i++) {
-    if (b2 & b[i]) {
-      a.push(pos[i], n);
+  let v = b2;
+  while (v) {
+    let b3 = v & (-v);
+    v ^= b3;
+    let n = bit_count(b3 - 1);
+    let a = [];
+    for (let i = 0; i < 9; i++) {
+      if (b3 & b[i]) {
+        a.push(pos[i], n);
+      }
     }
+    list.push(a);
   }
-  list.push(a);
 }
 
 function unit_alt(pm, list) {
@@ -271,6 +297,7 @@ function draw() {
   }
   draw_pm(ctx);
   document.getElementById('rawdata').value = data;
+  show_numbers();
   show_error("");
 }
 
