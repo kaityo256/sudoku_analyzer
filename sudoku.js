@@ -1,5 +1,6 @@
 //let data = "000010020000300400005006007089000000056000300700005008000040010007200000060008009";
-let data = "003050009400000000080007100000600800300090002000001070504030020060000000032000005";
+//let data = "003050009400000000080007100000600800300090002000001070504030020060000000032000005";
+let data = "000000000000000001001023040000500020002041600070000000006034702030800060900050030";
 
 let color_data = Array.apply(null, Array(81)).map(function () { return 0; });
 
@@ -64,6 +65,23 @@ function draw_line(pos1, num1, pos2, num2, ctx) {
   ctx.stroke();
 }
 
+// 純希少数字チェック
+
+function is_puretwo(v) {
+  if (data.split(String(v)).length != 3) {
+    return false;
+  }
+  let i1 = data.indexOf(String(v));
+  let i2 = data.indexOf(String(v), i1 + 1);
+  let c1 = Math.floor((i1 % 9) / 3);
+  let r1 = Math.floor((Math.floor(i1 / 9)) / 3);
+  let c2 = Math.floor((i2 % 9) / 3);
+  let r2 = Math.floor((Math.floor(i2 / 9)) / 3);
+  console.log(v, c1, c2);
+  if (c1 == c2) return false;
+  if (r1 == r2) return false;
+  return true;
+}
 
 // ビットカウント
 function bit_count(n) {
@@ -265,13 +283,19 @@ function draw() {
   }
   ctx.stroke();
 
-  ctx.fillStyle = '#000';
+  // ヒント数字の入力
   ctx.lineWidth = 1;
   ctx.strokeStyle = '#00A3D9';
   ctx.font = '40px "Century Gothic"';
   for (let i = 0; i < 9; i++) {
     for (let j = 0; j < 9; j++) {
       if (data[i + j * 9] != "0") {
+        let v = parseInt(data[i + j * 9]);
+        if (is_puretwo(v)) {
+          ctx.fillStyle = '#F00';
+        } else {
+          ctx.fillStyle = '#000';
+        }
         ctx.fillText(data[i + j * 9], i * gridsize + 12, (j + 1) * gridsize);
       }
     }
