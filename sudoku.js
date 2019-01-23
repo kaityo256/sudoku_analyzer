@@ -77,7 +77,6 @@ function is_puretwo(v) {
   let r1 = Math.floor((Math.floor(i1 / 9)) / 3);
   let c2 = Math.floor((i2 % 9) / 3);
   let r2 = Math.floor((Math.floor(i2 / 9)) / 3);
-  console.log(v, c1, c2);
   if (c1 == c2) return false;
   if (r1 == r2) return false;
   return true;
@@ -259,7 +258,9 @@ function draw_pm(ctx) {
       }
     }
   }
-  draw_alts(pm, ctx);
+  if (document.getElementById("show_alt").checked) {
+    draw_alts(pm, ctx);
+  }
 }
 
 function draw() {
@@ -467,6 +468,10 @@ document.onkeydown = function (e) {
   if (e.keyCode == 78) perm_num();
   if (e.keyCode == 67) clear_color();
   if (e.keyCode == 82) renumbering();
+  if (e.keyCode == "A".charCodeAt(0)) {
+    document.getElementById("show_alt").checked = !document.getElementById("show_alt").checked;
+    draw();
+  }
 }
 
 function onClickCanvas(x, y) {

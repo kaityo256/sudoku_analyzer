@@ -14,6 +14,10 @@
   --box-size: 142;
 }
 
+label, input[type='checkbox'] {
+    cursor: pointer;
+}
+
 .button {
   border-width: thin;border-style: solid;
   background-color:  palegreen;
@@ -105,6 +109,7 @@ td{
     <li> N: 数字の入れ替え
     <li> C: 色のクリア
     <li> R: 数字のリナンバリング
+    <li> A: 二択の表示
   </ul>
   <input type="text" size=100 id="rawdata">
   <input type="button" onClick=inputdata() value="入力">
@@ -271,6 +276,9 @@ td{
       <input type="text" size=100 id="bitset">
       <input type="button" onClick=inputbits() value="入力">
     </div>
+    <label for="show_alt">
+      <input type="checkbox" id="show_alt" checked onclick=draw() />二択の表示
+    </label>
   </form>
   <div id=numbers></div>
   <div id=error_message></div>
