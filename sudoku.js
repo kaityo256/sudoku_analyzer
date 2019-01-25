@@ -1,6 +1,8 @@
 //let data = "000010020000300400005006007089000000056000300700005008000040010007200000060008009";
 //let data = "003050009400000000080007100000600800300090002000001070504030020060000000032000005";
-let data = "000000000000000001001023040000500020002041600070000000006034702030800060900050030";
+//let data = "000000000000000001001023040000500020002041600070000000006034702030800060900050030";
+//let data = "050000000000600000001708000000032000008500400000000000006000073400000000000010002";
+let data = "000000000000000001000001234000000000002056070040087500003109020504300000610040003";
 
 let color_data = Array.apply(null, Array(81)).map(function () { return 0; });
 
@@ -39,6 +41,17 @@ function show_numbers(msg) {
   document.getElementById('numbers').innerHTML = str;
 }
 
+function draw_hidden(pos, num, ctx) {
+  let ix = pos % 9;
+  let iy = Math.floor(pos / 9);
+  let sx = ix * gridsize + (num % 3) * 14 + 9 + margin;
+  let sy = iy * gridsize + Math.floor(num / 3) * 14 + 9 + margin;
+  ctx.beginPath();
+  ctx.arc(sx, sy, 8, 0, Math.PI * 2, false);
+  ctx.fill();
+  ctx.stroke();
+}
+
 
 function draw_circle(pos, num, ctx) {
   let ix = pos % 9;
@@ -66,7 +79,6 @@ function draw_line(pos1, num1, pos2, num2, ctx) {
 }
 
 // 純希少数字チェック
-
 function is_puretwo(v) {
   if (data.split(String(v)).length != 3) {
     return false;
@@ -87,6 +99,84 @@ function bit_count(n) {
   n = n - ((n >> 1) & 0x55555555)
   n = (n & 0x33333333) + ((n >> 2) & 0x33333333)
   return ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
+}
+
+//ユニット内一択探索(hidden single)
+
+function unit_single(g, pos, list) {
+  let x1 = (g[0] ^ g[1] ^ g[2]);
+  let x2 = (g[3] ^ g[4] ^ g[5]);
+  let x3 = (g[6] ^ g[7] ^ g[8]);
+  let a1 = (g[0] & g[1] & g[2]);
+  let a2 = (g[3] & g[4] & g[5]);
+  let a3 = (g[6] & g[7] & g[8]);
+  let o1 = (g[0] | g[1] | g[2]);
+  let o2 = (g[3] | g[4] | g[5]);
+  let o3 = (g[6] | g[7] | g[8]);
+  let b1 = x1 ^ a1;
+  let b2 = x2 ^ a2;
+  let b3 = x3 ^ a3;
+  let c1 = b1 & (511 ^ (o2 | o3));
+  let c2 = b2 & (511 ^ (o3 | o1));
+  let c3 = b3 & (511 ^ (o1 | o2));
+  let b = c1 | c2 | c3;
+  if (b == 0) return;
+  let v = b;
+  while (v) {
+    let b3 = v & (-v);
+    v ^= b3;
+    let n = bit_count(b3 - 1);
+    let a = [];
+    for (let i = 0; i < 9; i++) {
+      if (b3 & g[i]) {
+        a.push(pos[i], n);
+      }
+    }
+    list.push(a);
+  }
+}
+
+function draw_hidden_single(pm, ctx) {
+  let b = Array(9);
+  let n = Array(9);
+  list = [];
+  for (let c = 0; c < 9; c++) {
+    for (let i = 0; i < 9; i++) {
+      n[i] = c + i * 9;
+      b[i] = pm[n[i]];
+    }
+    unit_single(b, n, list);
+  }
+  for (let r = 0; r < 9; r++) {
+    for (let i = 0; i < 9; i++) {
+      n[i] = i + r * 9;
+      b[i] = pm[n[i]];
+    }
+    unit_single(b, n, list);
+  }
+  for (let bi of [0, 3, 6, 27, 30, 33, 54, 57, 60]) {
+    n[0] = bi + 0;
+    n[1] = bi + 1;
+    n[2] = bi + 2;
+    n[3] = bi + 9;
+    n[4] = bi + 10;
+    n[5] = bi + 11;
+    n[6] = bi + 18;
+    n[7] = bi + 19;
+    n[8] = bi + 20;
+    for (let i = 0; i < 9; i++) {
+      b[i] = pm[n[i]];
+    }
+    unit_single(b, n, list);
+  }
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#000";
+  ctx.fillStyle = '#F99';
+  for (let i = 0; i < list.length; i++) {
+    let c1 = list[i][0];
+    let p1 = list[i][1];
+    draw_hidden(c1, p1, ctx);
+  }
 }
 
 //セル内二択探索
@@ -214,7 +304,7 @@ function draw_alts(pm, ctx) {
   }
 }
 
-function draw_pm(ctx) {
+function calc_pm() {
   let pm = Array.apply(null, Array(81)).map(function () { return 511; }); // ペンシルマーク
   for (let i = 0; i < 81; i++) {
     let v = Number(data[i]);
@@ -242,6 +332,10 @@ function draw_pm(ctx) {
       pm[c + j * 9] &= mask;
     }
   }
+  return pm;
+}
+
+function draw_pm(pm, ctx) {
   ctx.fillStyle = '#000';
   ctx.lineWidth = 2;
   ctx.strokeStyle = '#00A3D9';
@@ -258,9 +352,51 @@ function draw_pm(ctx) {
       }
     }
   }
-  if (document.getElementById("show_alt").checked) {
-    draw_alts(pm, ctx);
+}
+
+function draw_grid(ctx) {
+  let m = margin;
+  let mx = margin;
+  for (let i = 0; i < 10; i++) {
+    ctx.beginPath();
+    ctx.strokeStyle = '#aaa';
+    ctx.moveTo(0 + mx, i * gridsize + m);
+    ctx.lineTo(mx + 9 * gridsize, i * gridsize + m);
+    ctx.stroke();
+    ctx.moveTo(mx + i * gridsize, m);
+    ctx.lineTo(mx + i * gridsize, 9 * gridsize + m);
+    ctx.stroke();
   }
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.strokeStyle = '#000';
+    ctx.moveTo(mx, i * gridsize * 3 + m);
+    ctx.lineTo(mx + 9 * gridsize, i * gridsize * 3 + m);
+    ctx.moveTo(mx + i * gridsize * 3, m);
+    ctx.lineTo(mx + i * gridsize * 3, 9 * gridsize + m);
+    ctx.stroke();
+  }
+}
+
+function draw_numbers(ctx) {
+  // ヒント数字の入力
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#00A3D9';
+  ctx.font = '40px "Century Gothic"';
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (data[i + j * 9] != "0") {
+        let v = parseInt(data[i + j * 9]);
+        if (is_puretwo(v)) {
+          ctx.fillStyle = '#F00';
+        } else {
+          ctx.fillStyle = '#000';
+        }
+        ctx.fillText(data[i + j * 9], i * gridsize + 12, (j + 1) * gridsize);
+      }
+    }
+  }
+
 }
 
 function draw() {
@@ -283,45 +419,15 @@ function draw() {
     }
   }
   ctx.stroke();
-
-  // ヒント数字の入力
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = '#00A3D9';
-  ctx.font = '40px "Century Gothic"';
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
-      if (data[i + j * 9] != "0") {
-        let v = parseInt(data[i + j * 9]);
-        if (is_puretwo(v)) {
-          ctx.fillStyle = '#F00';
-        } else {
-          ctx.fillStyle = '#000';
-        }
-        ctx.fillText(data[i + j * 9], i * gridsize + 12, (j + 1) * gridsize);
-      }
-    }
+  draw_numbers(ctx);
+  draw_grid(ctx);
+  pm = calc_pm()
+  if (document.getElementById("show_alt").checked) {
+    draw_alts(pm, ctx);
   }
-  for (let i = 0; i < 10; i++) {
-    ctx.beginPath();
-    ctx.strokeStyle = '#aaa';
-    ctx.moveTo(0 + mx, i * gridsize + m);
-    ctx.lineTo(mx + 9 * gridsize, i * gridsize + m);
-    ctx.stroke();
-    ctx.moveTo(mx + i * gridsize, m);
-    ctx.lineTo(mx + i * gridsize, 9 * gridsize + m);
-    ctx.stroke();
-  }
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath();
-    ctx.strokeStyle = '#000';
-    ctx.moveTo(mx, i * gridsize * 3 + m);
-    ctx.lineTo(mx + 9 * gridsize, i * gridsize * 3 + m);
-    ctx.moveTo(mx + i * gridsize * 3, m);
-    ctx.lineTo(mx + i * gridsize * 3, 9 * gridsize + m);
-    ctx.stroke();
-  }
-  draw_pm(ctx);
+  draw_hidden_single(pm, ctx);
   document.getElementById('rawdata').value = data;
+  draw_pm(pm, ctx);
   show_numbers();
   show_error("");
 }
@@ -563,8 +669,6 @@ function perm_num() {
   draw();
   show_error("数字を入れ替えました。");
 }
-
-
 
 function inputua() {
   let a = document.getElementById("uasets").value.split(" ");
