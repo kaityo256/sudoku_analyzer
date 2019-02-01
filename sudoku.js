@@ -434,6 +434,7 @@ function draw() {
 
 function inputdata() {
   data = document.getElementById('rawdata').value;
+  data = data.replace(/\./g,'0');
   draw();
 }
 
