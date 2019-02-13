@@ -6,95 +6,100 @@
   <title>Sudoku Analizer</title>
   <script type="text/javascript" src="sudoku.js"></script>
   <STYLE TYPE="text/css">
-    <!--
+    :root {
+      --grid-size: 46;
+      --grid-width: 24;
+      --box-size: 142;
+    }
 
-:root {
-  --grid-size: 46;
-  --grid-width: 24;
-  --box-size: 142;
-}
+    label,
+    input[type='checkbox'] {
+      cursor: pointer;
+    }
 
-label, input[type='checkbox'] {
-    cursor: pointer;
-}
-
-.button {
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  height: var(--grid-size);
-  display: inline-block;
-  margin: 0;
-  padding: 0;
-}
-
-
-.boxcontainer{
-  margin: 0;
-  padding: 0;
-}
-
-.box{
-  display: table-cell;
-  margin: 0;
-  padding: 0;
-}
-
-.cb_rline{
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  height: var(--grid-size);
-  width: var(--grid-width);
-  margin: 0;
-  padding: 0;
-}
-
-.cb_cline{
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  height: var(--grid-width);
-  width: var(--grid-size);
-  display: inline-block;
-  margin: 0;
-  padding: 0;
-}
+    .button {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      height: var(--grid-size);
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+    }
 
 
-.cb_rbox{
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  margin: 0;
-  padding: 0;
-  height:var(--box-size);
-  width: var(--grid-width);
-  vertical-align: center;
-}
-.cb_cbox{
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  margin: 0;
-  padding: 0;
-  height: var(--grid-width);
-  width:var(--box-size);
-  display: inline-block;
-  vertical-align: center;
-}
+    .boxcontainer {
+      margin: 0;
+      padding: 0;
+    }
+
+    .box {
+      display: table-cell;
+      margin: 0;
+      padding: 0;
+    }
+
+    .cb_rline {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      height: var(--grid-size);
+      width: var(--grid-width);
+      margin: 0;
+      padding: 0;
+    }
+
+    .cb_cline {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      height: var(--grid-width);
+      width: var(--grid-size);
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+    }
 
 
-td{
-  margin: 0;
-  padding: 0;
-}
+    .cb_rbox {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      margin: 0;
+      padding: 0;
+      height: var(--box-size);
+      width: var(--grid-width);
+      vertical-align: center;
+    }
 
-.rbutton {
-  border-width: thin;border-style: solid;
-  background-color:  palegreen;
-  height: var(--grid-size);
-  width: var(--grid-size);
-  margin: 0;
-  padding: 0;
-}
--->
-</style>
+    .cb_cbox {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      margin: 0;
+      padding: 0;
+      height: var(--grid-width);
+      width: var(--box-size);
+      display: inline-block;
+      vertical-align: center;
+    }
+
+
+    td {
+      margin: 0;
+      padding: 0;
+    }
+
+    .rbutton {
+      border-width: thin;
+      border-style: solid;
+      background-color: palegreen;
+      height: var(--grid-size);
+      width: var(--grid-size);
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 
 
 </head>
@@ -113,6 +118,7 @@ td{
   </ul>
   <input type="text" size=100 id="rawdata">
   <input type="button" onClick=inputdata() value="入力">
+  <div id="num">0</div>
 
   <form id=form>
 

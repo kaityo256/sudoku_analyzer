@@ -434,7 +434,7 @@ function draw() {
 
 function inputdata() {
   data = document.getElementById('rawdata').value;
-  data = data.replace(/\./g,'0');
+  data = data.replace(/\./g, '0');
   draw();
 }
 
@@ -602,6 +602,7 @@ function onClickCanvas(x, y) {
   } else {
     color_data[i] = c;
   }
+  document.getElementById("num").innerText = i;
   draw();
 }
 
